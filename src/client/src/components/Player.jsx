@@ -41,8 +41,6 @@ function Player() {
         playingIndex.current = 0;
       }
 
-      console.log(playingIndex.current);
-
       fetchSongData(songs[playingIndex.current]);
     };
 
@@ -93,8 +91,6 @@ function Player() {
       "https://studio-api.prod.suno.com/api/clip/" + songId
     );
     const data = await response.json();
-
-    console.log(data);
 
     if (data) {
       setSong({
