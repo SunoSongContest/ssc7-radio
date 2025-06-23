@@ -58,6 +58,15 @@ function Player() {
   }, [song]);
 
   const shuffleSongs = (songsArray) => {
+    songsArray.push({
+      song_url: "https://suno.com/song/919c653c-3b2a-4d37-a845-214d659f75bd",
+      song_country: "Contest Anthem",
+    });
+    songsArray.push({
+      song_url: "https://suno.com/song/2e01a4b8-2964-47e9-86e4-a6a02af7dfef",
+      song_country: "Contest Anthem",
+    });
+
     for (let i = songsArray.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [songsArray[i], songsArray[j]] = [songsArray[j], songsArray[i]];
@@ -121,11 +130,13 @@ function Player() {
                 <span>{song.title}</span>
               </a>
             </div>
-            <div className="author">
-              <a href={song.profile_url} target="_blank">
-                <span>{song.author_name}</span>
-              </a>
-            </div>
+            {song.country_name !== "Contest Anthem" && (
+              <div className="author">
+                <a href={song.profile_url} target="_blank">
+                  <span>{song.author_name}</span>
+                </a>
+              </div>
+            )}
             <div className="country">
               <span>{song.country_name}</span>
             </div>
