@@ -7,7 +7,7 @@ require("dotenv").config();
 
 router.get("/data", async (req, res) => {
   try {
-    const filePath = path.join(__dirname, "data", "accepted_songs.json"));
+    const filePath = path.join(__dirname, "data", "accepted_songs.json");
 
     const jsonData = await fs.readFile(filePath, "utf8");
     
