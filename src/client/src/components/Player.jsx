@@ -94,13 +94,17 @@ function Player() {
     );
     const data = await response.json();
 
+    console.log(data);
+
     if (data) {
       setSong({
+        song_url: song.song_url,
         cover_url: data.image_large_url,
         title: data.title.replace(/\s*\[[^\]]*\]/g, ""),
         author_name: data.display_name,
         country_name: song.song_country,
         audio_src: data.audio_url,
+        profile_url: `https://suno.com/@${data.handle}`,
       });
     }
   };
@@ -117,10 +121,14 @@ function Player() {
           ></div>
           <div className="info">
             <div className="title">
-              <span>{song.title}</span>
+              <a href={song.song_url} target="_blank">
+                <span>{song.title}</span>
+              </a>
             </div>
             <div className="author">
-              <span>{song.author_name}</span>
+              <a href={song.profile_url} target="_blank">
+                <span>{song.author_name}</span>
+              </a>
             </div>
             <div className="country">
               <span>{song.country_name}</span>

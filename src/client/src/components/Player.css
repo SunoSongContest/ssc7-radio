@@ -4,7 +4,7 @@
   left: 0;
   padding: 12px;
   width: 100%;
-  height: 220px;
+  height: 240px;
   box-sizing: border-box;
 }
 
@@ -33,6 +33,11 @@ span {
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 8px;
+  border-width: 3px;
+  border-style: solid;
+  border-color: #5ac5db #ec9a39 #d03f71 white;
+  box-sizing: border-box;
+  box-shadow: 0 0 0 3px black inset;
 }
 
 .info {
@@ -45,8 +50,8 @@ span {
 .title span {
   margin-bottom: 0;
   transform: none;
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 800;
   word-break: break-all;
 }
 
@@ -54,15 +59,35 @@ span {
   margin-bottom: 6px;
   transform: none;
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
+}
+
+.title a,
+.author a {
+  color: inherit;
+  text-decoration: none;
+  transition: 0.1s;
+}
+
+.title a:hover,
+.title a:active {
+  color: #5ac5db;
+  transition: 0.1s;
+}
+
+.author a:hover,
+.author a:active {
+  color: #ec9a39;
+  transition: 0.1s;
 }
 
 .country span {
   margin-bottom: 12px;
   transform: none;
   font-size: 1rem;
-  font-weight: 400;
-  color: #bdbdbd;
+  font-weight: 600;
+  color: #d03f71;
+  letter-spacing: 0.02rem;
 }
 
 .controls {
