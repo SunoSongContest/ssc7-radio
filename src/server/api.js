@@ -6,7 +6,6 @@ const router = express.Router();
 require("dotenv").config();
 
 const googleAuth = new google.auth.GoogleAuth({
-  // keyFile:  path.join(__dirname, "../../google-credentials.json"),
   credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
   scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
 });
@@ -17,7 +16,7 @@ router.get("/data", async (req, res) => {
     const sheets = google.sheets({ version: "v4", auth: client });
 
     const sheetData = await sheets.spreadsheets.values.get({
-      spreadsheetId: "1Rso8jsLWp217S8h9RnwjtCVgjA61lEwAaPICdrxZ1Vo",
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
       range: "Accepted!A2:H389",
     });
 
