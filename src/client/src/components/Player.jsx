@@ -7,6 +7,8 @@ function Player() {
   const [songs, setSongs] = useState([]);
   const [song, setSong] = useState(null);
 
+  const [isFetching, setIsFetching] = useState(false);
+
   const playingIndex = useRef(0);
   const audioRef = useRef(null);
 
@@ -45,6 +47,8 @@ function Player() {
     };
 
     audioRef.current.addEventListener("ended", handleSongEnded);
+
+    setIsFetching(false);
 
     if (song && song.audio_src) {
       audioRef.current.play();
@@ -94,6 +98,8 @@ function Player() {
   };
 
   const fetchSongData = async (song) => {
+    setIsFetching(true);
+
     const songId = await getSunoSongId(song);
 
     const response = await fetch(
@@ -141,15 +147,43 @@ function Player() {
               <span>{song.country_name}</span>
             </div>
             <div className="controls">
+              <div
+                className={`change ${isFetching ? "disabled" : ""}`}
+                onClick={() => {
+                  playingIndex.current--;
+
+                  if (playingIndex.current <= 0) {
+                    playingIndex.current = 0;
+                  }
+
+                  fetchSongData(songs[playingIndex.current]);
+                }}
+              >
+                <span>⏮︎</span>
+              </div>
               {song.audio_src && (
                 <audio
                   ref={audioRef}
                   controls
                   autoPlay
-                  controlsList="nodownload nofullscreen"
+                  controlsList="nodownload nofullscreen noplaybackrate"
                   src={song.audio_src}
                 />
               )}
+              <div
+                className={`change ${isFetching ? "disabled" : ""}`}
+                onClick={() => {
+                  playingIndex.current++;
+
+                  if (playingIndex.current >= songs.length) {
+                    playingIndex.current = 0;
+                  }
+
+                  fetchSongData(songs[playingIndex.current]);
+                }}
+              >
+                <span>⏭︎</span>
+              </div>
             </div>
           </div>
         </div>

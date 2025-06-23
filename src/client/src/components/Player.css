@@ -94,8 +94,30 @@ span {
   justify-self: flex-end;
   flex: 1;
   display: flex;
+  gap: 3px;
   justify-content: center;
   align-items: center;
+}
+
+.controls .change {
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+
+.controls .change.disabled {
+  pointer-events: none;
+}
+
+.controls .change span {
+  margin-bottom: 0;
+  transform: none;
+  font-size: 1rem;
+  color: #f5f5f5;
+}
+
+.controls .change:hover {
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .controls audio {
