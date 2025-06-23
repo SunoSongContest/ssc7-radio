@@ -97,8 +97,9 @@ function Player() {
     if (data) {
       setSong({
         cover_url: data.image_large_url,
-        title: data.title,
+        title: data.title.replace(/\s*\[[^\]]*\]/g, ""),
         author_name: data.display_name,
+        country_name: song.song_country,
         audio_src: data.audio_url,
       });
     }
@@ -120,6 +121,9 @@ function Player() {
             </div>
             <div className="author">
               <span>{song.author_name}</span>
+            </div>
+            <div className="country">
+              <span>{song.country_name}</span>
             </div>
             <div className="controls">
               {song.audio_src && (
