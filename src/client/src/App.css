@@ -2,3 +2,16 @@
   margin: 0 auto;
   max-width: 480px;
 }
+
+.credits {
+  position: absolute;
+  bottom: 6px;
+  left: 12px;
+  font-family: "Nunito Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: "wdth" 100, "YTLC" 500;
+  font-size: 0.75rem;
+  font-weight: 500;
+}

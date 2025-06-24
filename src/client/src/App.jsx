@@ -6,6 +6,7 @@ function App() {
   return (
     <Wrapper>
       <Player />
+      <span className="credits">Made with ❤️ by Dazorn</span>
     </Wrapper>
   );
 }

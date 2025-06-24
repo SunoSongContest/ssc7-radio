@@ -8,18 +8,6 @@
   box-sizing: border-box;
 }
 
-span {
-  display: block;
-  margin-bottom: 24px;
-  transform: skew(-15deg, 0);
-  font-family: "Nunito Sans", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 700;
-  font-style: normal;
-  font-variation-settings: "wdth" 100, "YTLC" 500;
-  font-size: 1.4rem;
-}
-
 .content {
   display: flex;
 }
@@ -44,12 +32,16 @@ span {
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin-left: 24px;
+  margin-left: 12px;
 }
 
 .title span {
   margin-bottom: 0;
-  transform: none;
+  font-family: "Nunito Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: "wdth" 100, "YTLC" 500;
   font-size: 1.25rem;
   font-weight: 800;
   word-break: break-all;
@@ -57,7 +49,11 @@ span {
 
 .author span {
   margin-bottom: 6px;
-  transform: none;
+  font-family: "Nunito Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: "wdth" 100, "YTLC" 500;
   font-size: 1.1rem;
   font-weight: 600;
 }
@@ -83,7 +79,11 @@ span {
 
 .country span {
   margin-bottom: 12px;
-  transform: none;
+  font-family: "Nunito Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: "wdth" 100, "YTLC" 500;
   font-size: 1rem;
   font-weight: 600;
   color: #d03f71;
@@ -94,28 +94,74 @@ span {
   justify-self: flex-end;
   flex: 1;
   display: flex;
-  gap: 3px;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.controls .progress {
+  display: flex;
   align-items: center;
+  gap: 12px;
 }
 
-.controls .change {
+.controls .progress .slider {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.controls .progress .slider .bar {
+  flex: 1;
+  height: 12px;
+  background-color: #424242;
   border-radius: 8px;
-  padding: 4px 8px;
 }
 
-.controls .change.disabled {
+.controls .progress .slider .current,
+.controls .progress .slider .total {
+  font-family: "Nunito Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  font-variation-settings: "wdth" 100, "YTLC" 500;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.controls .progress .slider .bar .track {
+  height: 12px;
+  width: var(--width);
+  background-color: #f5f5f5;
+  border-radius: 12px;
+  transition: 0.2s ease-in-out;
+}
+
+.controls .deck {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.controls .button {
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.controls .button.change {
+  color: #999;
+}
+
+.controls .button.disabled {
   pointer-events: none;
 }
 
-.controls .change span {
-  margin-bottom: 0;
-  transform: none;
-  font-size: 1rem;
-  color: #f5f5f5;
+.controls .button svg {
+  display: block;
 }
 
-.controls .change:hover {
+.controls .button:hover {
   cursor: pointer;
   background-color: rgba(255, 255, 255, 0.2);
 }

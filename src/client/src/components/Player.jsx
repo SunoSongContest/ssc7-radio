@@ -1,4 +1,14 @@
 import { useEffect, useRef, useState } from "react";
+import {
+  IconPlayerPauseFilled,
+  IconPlayerPlayFilled,
+  IconPlayerSkipBackFilled,
+  IconPlayerSkipForwardFilled,
+  IconRewindBackward30,
+  IconRewindForward30,
+  IconVolume,
+  IconVolumeOff,
+} from "@tabler/icons-react";
 import "./Player.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -8,9 +18,14 @@ function Player() {
   const [song, setSong] = useState(null);
 
   const [isFetching, setIsFetching] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [totalDuration, setTotalDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
 
   const playingIndex = useRef(0);
   const audioRef = useRef(null);
+  const trackWidth = useRef(0);
 
   useEffect(() => {
     const fetchSongs = async () => {
@@ -36,6 +51,22 @@ function Player() {
   useEffect(() => {
     if (!audioRef.current) return;
 
+    const handleSongDurationChanged = (_) => {
+      trackWidth.current = 0;
+      setTotalDuration(audioRef.current.duration);
+    };
+
+    const handleSongTimeUpdated = (e) => {
+      trackWidth.current =
+        (audioRef.current.currentTime * 100) / audioRef.current.duration;
+
+      if (trackWidth.current < 5) {
+        trackWidth.current = 5;
+      }
+
+      setCurrentTime(audioRef.current.currentTime);
+    };
+
     const handleSongEnded = () => {
       playingIndex.current++;
 
@@ -46,16 +77,32 @@ function Player() {
       fetchSongData(songs[playingIndex.current]);
     };
 
+    audioRef.current.addEventListener(
+      "durationchange",
+      handleSongDurationChanged
+    );
+    audioRef.current.addEventListener("timeupdate", handleSongTimeUpdated);
     audioRef.current.addEventListener("ended", handleSongEnded);
 
     setIsFetching(false);
 
     if (song && song.audio_src) {
-      audioRef.current.play();
+      audioRef.current
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch((err) => setIsPlaying(false));
     }
 
     return () => {
       if (audioRef.current) {
+        audioRef.current.removeEventListener(
+          "durationchange",
+          handleSongDurationChanged
+        );
+        audioRef.current.removeEventListener(
+          "timeupdate",
+          handleSongTimeUpdated
+        );
         audioRef.current.removeEventListener("ended", handleSongEnded);
       }
     };
@@ -120,6 +167,32 @@ function Player() {
     }
   };
 
+  const onPlayPauseSong = () => {
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch((err) => setIsPlaying(false));
+    }
+
+    setIsPlaying(!isPlaying);
+  };
+
+  const onMuteToggle = () => {
+    if (!audioRef.current) return;
+
+    audioRef.current.volume = isMuted ? 1 : 0;
+
+    setIsMuted(!isMuted);
+  };
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+  };
+
   return (
     <div className="player">
       {song && (
@@ -147,42 +220,106 @@ function Player() {
               <span>{song.country_name}</span>
             </div>
             <div className="controls">
-              <div
-                className={`change ${isFetching ? "disabled" : ""}`}
-                onClick={() => {
-                  playingIndex.current--;
-
-                  if (playingIndex.current <= 0) {
-                    playingIndex.current = 0;
-                  }
-
-                  fetchSongData(songs[playingIndex.current]);
-                }}
-              >
-                <span>⏮︎</span>
+              <div className="progress">
+                <div className="slider">
+                  <span className="current">{formatTime(currentTime)}</span>
+                  <div className="bar">
+                    <div
+                      className="track"
+                      style={{ "--width": `${trackWidth.current}%` }}
+                    />
+                  </div>
+                  <span className="total">{formatTime(totalDuration)}</span>
+                </div>
+                <div className="button volume" onClick={onMuteToggle}>
+                  {isMuted ? (
+                    <IconVolumeOff size={24} />
+                  ) : (
+                    <IconVolume size={24} />
+                  )}
+                </div>
               </div>
-              {song.audio_src && (
-                <audio
-                  ref={audioRef}
-                  controls
-                  autoPlay
-                  controlsList="nodownload nofullscreen noplaybackrate"
-                  src={song.audio_src}
-                />
-              )}
-              <div
-                className={`change ${isFetching ? "disabled" : ""}`}
-                onClick={() => {
-                  playingIndex.current++;
+              <div className="deck">
+                <div
+                  className={`button change ${isFetching ? "disabled" : ""}`}
+                  onClick={() => {
+                    let t = audioRef.current.currentTime;
 
-                  if (playingIndex.current >= songs.length) {
-                    playingIndex.current = 0;
-                  }
+                    t -= 30;
 
-                  fetchSongData(songs[playingIndex.current]);
-                }}
-              >
-                <span>⏭︎</span>
+                    if (t < 0) {
+                      t = 0;
+                    }
+
+                    audioRef.current.currentTime = t;
+                  }}
+                >
+                  <IconRewindBackward30 size={24} />
+                </div>
+                <div
+                  className={`button change ${isFetching ? "disabled" : ""}`}
+                  onClick={() => {
+                    playingIndex.current--;
+
+                    if (playingIndex.current <= 0) {
+                      playingIndex.current = 0;
+                    }
+
+                    fetchSongData(songs[playingIndex.current]);
+                  }}
+                >
+                  <IconPlayerSkipBackFilled size={24} />
+                </div>
+                <div
+                  className={`button play ${isFetching ? "disabled" : ""}`}
+                  onClick={onPlayPauseSong}
+                >
+                  {isPlaying ? (
+                    <IconPlayerPauseFilled size={48} />
+                  ) : (
+                    <IconPlayerPlayFilled size={48} />
+                  )}
+                </div>
+                <div
+                  className={`button change ${isFetching ? "disabled" : ""}`}
+                  onClick={() => {
+                    playingIndex.current++;
+
+                    if (playingIndex.current >= songs.length) {
+                      playingIndex.current = 0;
+                    }
+
+                    fetchSongData(songs[playingIndex.current]);
+                  }}
+                >
+                  <IconPlayerSkipForwardFilled size={24} />
+                </div>
+                <div
+                  className={`button change ${isFetching ? "disabled" : ""}`}
+                  onClick={() => {
+                    let t = audioRef.current.currentTime;
+
+                    t += 30;
+
+                    if (t > audioRef.current.duration) {
+                      t = audioRef.current.duration;
+                    }
+
+                    audioRef.current.currentTime = t;
+                  }}
+                >
+                  <IconRewindForward30 size={24} />
+                </div>
+                {song.audio_src && (
+                  <audio
+                    hidden
+                    ref={audioRef}
+                    controls
+                    autoPlay
+                    controlsList="nodownload nofullscreen noplaybackrate"
+                    src={song.audio_src}
+                  />
+                )}
               </div>
             </div>
           </div>
