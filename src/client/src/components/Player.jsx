@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./Player.css";
+import Waveform from "./Waveform";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -156,13 +157,21 @@ function Player() {
     const data = await response.json();
 
     if (data) {
+      const audioBlobResponse = await fetch(data.audio_url, { mode: "cors" });
+      const audioBlob = await audioBlobResponse.blob();
+      const audioBlobUrl = URL.createObjectURL(audioBlob);
+
+      console.log(data.audio_url);
+      console.log(audioBlobResponse);
+      console.log(audioBlobUrl);
+
       setSong({
         song_url: song.song_url,
         cover_url: data.image_large_url,
         title: data.title.replace(/\s*\[[^\]]*\]/g, ""),
         author_name: data.display_name,
         country_name: song.song_country,
-        audio_src: data.audio_url,
+        audio_src: audioBlobUrl,
         profile_url: `https://suno.com/@${data.handle}`,
       });
     }
@@ -198,6 +207,7 @@ function Player() {
     <div className="player">
       {song && (
         <div className="content">
+          <Waveform audioSource={audioRef.current} />
           <div
             className="artwork"
             style={{

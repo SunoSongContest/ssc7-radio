@@ -13,6 +13,7 @@
 }
 
 .artwork {
+  position: relative;
   min-width: 140px;
   width: 140px;
   height: 200px;
