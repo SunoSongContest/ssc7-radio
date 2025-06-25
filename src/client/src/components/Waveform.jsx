@@ -23,7 +23,12 @@ function Waveform({ audioSource }) {
       audioAnalyserRef.current = audioCtxRef.current.createAnalyser();
       audioAnalyserRef.current.fftSize = 2048;
 
-      sourceRef.current.connect(audioAnalyserRef.current);
+      const lowPassFilter = audioCtxRef.current.createBiquadFilter();
+      lowPassFilter.type = "lowpass";
+      lowPassFilter.frequency.value = 20000;
+
+      sourceRef.current.connect(lowPassFilter);
+      lowPassFilter.connect(audioAnalyserRef.current);
       sourceRef.current.connect(audioCtxRef.current.destination);
     }
 
@@ -70,7 +75,7 @@ function Waveform({ audioSource }) {
       }
 
       const lerpedDataArray = new Uint8Array(bufferSize);
-      const smoothingFactor = 0.3;
+      const smoothingFactor = 0.15;
 
       for (let i = 0; i < bufferSize; i++) {
         lerpedDataArray[i] =

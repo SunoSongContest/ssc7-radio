@@ -66,6 +66,16 @@ function Player() {
         trackWidth.current = 5;
       }
 
+      if ("setPositionState" in navigator.mediaSession) {
+        try {
+          navigator.mediaSession.setPositionState({
+            duration: audioRef.current.duration || 0,
+            playbackRate: 1,
+            position: audioRef.current.currentTime || 0,
+          });
+        } catch (err) {}
+      }
+
       setCurrentTime(audioRef.current.currentTime);
     };
 
@@ -113,7 +123,6 @@ function Player() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!audioRef.current) return;
-      console.log(e.code);
 
       if (e.code === "Space") {
         e.preventDefault();
@@ -137,6 +146,19 @@ function Player() {
     };
 
     window.addEventListener("keydown", handleKeyDown);
+
+    if ("mediaSession" in navigator) {
+      try {
+        navigator.mediaSession.setActionHandler("play", onPlayPauseSong);
+        navigator.mediaSession.setActionHandler("pause", onPlayPauseSong);
+        navigator.mediaSession.setActionHandler("previoustrack", () =>
+          onChangeSong(-1)
+        );
+        navigator.mediaSession.setActionHandler("nexttrack", () =>
+          onChangeSong(1)
+        );
+      } catch (err) {}
+    }
 
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isPlaying, isMuted]);
@@ -192,11 +214,7 @@ function Player() {
       const audioBlob = await audioBlobResponse.blob();
       const audioBlobUrl = URL.createObjectURL(audioBlob);
 
-      console.log(data.audio_url);
-      console.log(audioBlobResponse);
-      console.log(audioBlobUrl);
-
-      setSong({
+      const newSong = {
         song_url: song.song_url,
         cover_url: data.image_large_url,
         title: data.title.replace(/\s*\[[^\]]*\]/g, ""),
@@ -204,7 +222,22 @@ function Player() {
         country_name: song.song_country,
         audio_src: audioBlobUrl,
         profile_url: `https://suno.com/@${data.handle}`,
-      });
+      };
+
+      if ("mediaSession" in navigator) {
+        try {
+          navigator.mediaSession.metadata = new window.MediaMetadata({
+            title: newSong.title,
+            artist: newSong.author_name,
+            album: newSong.country_name,
+            artwork: [
+              { src: newSong.cover_url, sizes: "512x512", type: "image/png" },
+            ],
+          });
+        } catch (err) {}
+      }
+
+      setSong(newSong);
     }
   };
 
