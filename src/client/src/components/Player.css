@@ -113,7 +113,7 @@
 
 .controls .progress .slider .bar {
   flex: 1;
-  height: 12px;
+  height: 8px;
   background-color: #424242;
   border-radius: 8px;
 }
@@ -130,7 +130,7 @@
 }
 
 .controls .progress .slider .bar .track {
-  height: 12px;
+  height: 8px;
   width: var(--width);
   background-color: #f5f5f5;
   border-radius: 12px;
