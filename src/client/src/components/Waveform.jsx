@@ -9,6 +9,10 @@ function Waveform({ audioSource }) {
   const audioAnalyserRef = useRef(null);
   const prevDataArrayRef = useRef(null);
   const animationFrameRef = useRef(null);
+  const lastAnimationTimeRef = useRef(0);
+
+  const fps = 30;
+  const interval = 1000 / fps;
 
   useEffect(() => {
     if (!audioSource) return;
@@ -63,6 +67,11 @@ function Waveform({ audioSource }) {
     const drawWaveform = () => {
       animationFrameRef.current = requestAnimationFrame(drawWaveform);
 
+      const time = performance.now();
+      if (time - lastAnimationTimeRef.current < interval) return;
+
+      lastAnimationTimeRef.current = time;
+
       const bufferSize = audioAnalyserRef.current.fftSize;
       const dataArray = new Uint8Array(bufferSize);
 
@@ -98,7 +107,7 @@ function Waveform({ audioSource }) {
 
       ctx.beginPath();
 
-      const step = 8;
+      const step = 16;
       const smoothing = 256;
       const sliceWidth = waveformRef.current.width / (bufferSize - smoothing);
 
@@ -138,7 +147,17 @@ function Waveform({ audioSource }) {
       ctx.lineTo(0, baseLine + 12);
       ctx.closePath();
 
-      ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+      const volume =
+        lerpedDataArray.reduce((sum, val) => sum + Math.abs(val - 128), 0) /
+        lerpedDataArray.length;
+      const alphaBlur = Math.min(1, volume / 15);
+
+      ctx.fillStyle = `rgba(255, 255, 255, ${
+        0.05 + Math.min(alphaBlur * 0.5, 0.4)
+      })`;
+      ctx.shadowColor = "rgba(255, 255, 255, 0.8)";
+      ctx.shadowBlur = 20 * alphaBlur;
+
       ctx.fill();
     };
 
