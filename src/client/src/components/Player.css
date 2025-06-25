@@ -102,6 +102,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 3px;
 }
 
 .controls .progress .slider {
@@ -141,12 +142,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 6px;
 }
 
 .controls .button {
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 6px 9px;
 }
 
 .controls .button.change {
