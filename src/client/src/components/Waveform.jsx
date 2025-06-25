@@ -32,6 +32,7 @@ function Waveform({ audioSource }) {
         audioCtxRef.current.resume();
       }
 
+      cancelAnimationFrame(animationFrameRef.current);
       drawWaveform();
     };
 
@@ -135,6 +136,10 @@ function Waveform({ audioSource }) {
       ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
       ctx.fill();
     };
+
+    if (!audioSource.paused) {
+      handleAudioPlay();
+    }
 
     audioSource.addEventListener("play", handleAudioPlay);
     audioSource.addEventListener("pause", handleAudioPause);

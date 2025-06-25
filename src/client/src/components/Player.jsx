@@ -110,6 +110,37 @@ function Player() {
     };
   }, [song]);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!audioRef.current) return;
+      console.log(e.code);
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        onPlayPauseSong();
+      } else if (e.code === "ArrowRight") {
+        e.preventDefault();
+        onChangeSong(1);
+      } else if (e.code === "ArrowLeft") {
+        e.preventDefault();
+        onChangeSong(-1);
+      } else if (e.code === "ArrowUp") {
+        e.preventDefault();
+        onMoveDurationSong(30);
+      } else if (e.code === "ArrowDown") {
+        e.preventDefault();
+        onMoveDurationSong(-30);
+      } else if (e.code === "KeyM") {
+        e.preventDefault();
+        onMuteToggle();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isPlaying, isMuted]);
+
   const shuffleSongs = (songsArray) => {
     songsArray.push({
       song_url: "https://suno.com/song/919c653c-3b2a-4d37-a845-214d659f75bd",
@@ -187,6 +218,32 @@ function Player() {
     }
 
     setIsPlaying(!isPlaying);
+  };
+
+  const onChangeSong = (direction) => {
+    playingIndex.current += direction;
+
+    if (playingIndex.current <= 0) {
+      playingIndex.current = 0;
+    } else if (playingIndex.current >= songs.length) {
+      playingIndex.current = 0;
+    }
+
+    fetchSongData(songs[playingIndex.current]);
+  };
+
+  const onMoveDurationSong = (seconds) => {
+    let t = audioRef.current.currentTime;
+
+    t += seconds;
+
+    if (t < 0) {
+      t = 0;
+    } else if (t > audioRef.current.duration) {
+      t = audioRef.current.duration;
+    }
+
+    audioRef.current.currentTime = t;
   };
 
   const onMuteToggle = () => {
@@ -287,17 +344,7 @@ function Player() {
                 {!isFromMobile && (
                   <div
                     className={`button change ${isFetching ? "disabled" : ""}`}
-                    onClick={() => {
-                      let t = audioRef.current.currentTime;
-
-                      t -= 30;
-
-                      if (t < 0) {
-                        t = 0;
-                      }
-
-                      audioRef.current.currentTime = t;
-                    }}
+                    onClick={() => onMoveDurationSong(-30)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -321,15 +368,7 @@ function Player() {
                 )}
                 <div
                   className={`button change ${isFetching ? "disabled" : ""}`}
-                  onClick={() => {
-                    playingIndex.current--;
-
-                    if (playingIndex.current <= 0) {
-                      playingIndex.current = 0;
-                    }
-
-                    fetchSongData(songs[playingIndex.current]);
-                  }}
+                  onClick={() => onChangeSong(-1)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -377,15 +416,7 @@ function Player() {
                 </div>
                 <div
                   className={`button change ${isFetching ? "disabled" : ""}`}
-                  onClick={() => {
-                    playingIndex.current++;
-
-                    if (playingIndex.current >= songs.length) {
-                      playingIndex.current = 0;
-                    }
-
-                    fetchSongData(songs[playingIndex.current]);
-                  }}
+                  onClick={() => onChangeSong(1)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -403,17 +434,7 @@ function Player() {
                 {!isFromMobile && (
                   <div
                     className={`button change ${isFetching ? "disabled" : ""}`}
-                    onClick={() => {
-                      let t = audioRef.current.currentTime;
-
-                      t += 30;
-
-                      if (t > audioRef.current.duration) {
-                        t = audioRef.current.duration;
-                      }
-
-                      audioRef.current.currentTime = t;
-                    }}
+                    onClick={() => onMoveDurationSong(30)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
