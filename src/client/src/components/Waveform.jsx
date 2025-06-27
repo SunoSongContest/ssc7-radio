@@ -35,6 +35,8 @@ function Waveform({ audioSource }) {
       splitter.connect(analyserLeft, 0);
       splitter.connect(analyserRight, 1);
 
+      sourceRef.current.connect(splitter);
+
       // VOCAL CHANNEL: Filtro ottimizzato per range vocali
       const vocalAnalyser = audioCtxRef.current.createAnalyser();
       vocalAnalyser.fftSize = 2048;
@@ -74,8 +76,6 @@ function Waveform({ audioSource }) {
       const lowPassFilter = audioCtxRef.current.createBiquadFilter();
       lowPassFilter.type = "lowpass";
       lowPassFilter.frequency.value = 20000;
-
-      sourceRef.current.connect(splitter);
 
       sourceRef.current.connect(audioCtxRef.current.destination);
     }
