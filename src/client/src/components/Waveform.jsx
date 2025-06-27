@@ -125,6 +125,11 @@ function Waveform({ audioSource }) {
 
       lastAnimationTimeRef.current = time;
 
+      const playTime = audioSource.currentTime;
+      const maxTime = audioSource.duration - 0.2;
+
+      if (playTime <= 0.2 || playTime >= maxTime) return;
+
       const ctx = waveformRef.current.getContext("2d");
 
       ctx.clearRect(
@@ -212,8 +217,8 @@ function Waveform({ audioSource }) {
       const amplitudeM = analyserIndex === 2 ? 3 : 1;
       const amplitude = waveformRef.current.height * 1.2 * amplitudeM; // wave height
 
-      const step = 16;
-      const smoothing = 256;
+      const step = 32;
+      const smoothing = 128;
       const sliceWidth = waveformRef.current.width / (bufferSize - smoothing);
 
       let x = 0;
