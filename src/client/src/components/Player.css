@@ -10,6 +10,7 @@
 
 .content {
   display: flex;
+  position: relative;
 }
 
 .artwork {
@@ -27,6 +28,14 @@
   border-color: #5ac5db #ec9a39 #d03f71 white;
   box-sizing: border-box;
   box-shadow: 0 0 0 3px black inset;
+}
+
+.lyrics {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: calc(140px - 12px);
+  height: calc(200px - 12px);
 }
 
 .info {

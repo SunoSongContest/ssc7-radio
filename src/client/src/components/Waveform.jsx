@@ -274,7 +274,10 @@ function Waveform({ audioSource }) {
 
       const alphaBlur = Math.min(1, volume / volumeDivisor);
 
-      if (Math.random() < 0.03) {
+      if (
+        import.meta.env.VITE_WAVEFORM_LOG_ENABLED === "true" &&
+        Math.random() < 0.03
+      ) {
         const channelName =
           analyserIndex === 0
             ? "LEFT"
