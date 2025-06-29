@@ -244,7 +244,8 @@ function Waveform({ audioSource }) {
         const v = ((sum / smoothing - min) / range) * 2 - 1;
         const amplified = amplify(v);
 
-        const y = baseLine - amplified * amplitude;
+        let y = baseLine - amplified * amplitude;
+        y = Math.max(0, Math.min(waveformRef.current.height, y));
 
         if (i === 0) ctx.moveTo(0, baseLine);
         else {
