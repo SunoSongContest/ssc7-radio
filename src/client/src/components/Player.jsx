@@ -4,7 +4,7 @@ import Waveform from "./Waveform";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function Player() {
+function Player({ format }) {
   const [songs, setSongs] = useState([]);
   const [song, setSong] = useState(null);
 
@@ -23,7 +23,14 @@ function Player() {
   useEffect(() => {
     const fetchSongs = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/data`);
+        let url = `${API_URL}/api/data`;
+
+        if (format === "TSW") {
+          url += "/tsw";
+        }
+
+        const response = await fetch(url);
+
         shuffleSongs(await response.json());
       } catch (err) {
         console.error("Unexpected error while fetching data", err);

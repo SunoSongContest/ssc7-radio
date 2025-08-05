@@ -24,58 +24,97 @@ function Waveform({ audioSource }) {
       sourceRef.current =
         audioCtxRef.current.createMediaElementSource(audioSource);
 
-      const splitter = audioCtxRef.current.createChannelSplitter(2);
+      // FREQUENZE BASSE (20Hz - 400Hz) - Filtri più permissivi per Suno AI
+      const bassAnalyser = audioCtxRef.current.createAnalyser();
+      bassAnalyser.fftSize = 2048;
 
-      const analyserLeft = audioCtxRef.current.createAnalyser();
-      analyserLeft.fftSize = 2048;
+      // Filtro passa-basso molto permissivo
+      const bassLowpass1 = audioCtxRef.current.createBiquadFilter();
+      bassLowpass1.type = "lowpass";
+      bassLowpass1.frequency.value = 400; // Molto più alto per far passare più segnale
+      bassLowpass1.Q.value = 0.7; // Q basso per pendenza dolce
 
-      const analyserRight = audioCtxRef.current.createAnalyser();
-      analyserRight.fftSize = 2048;
+      // Filtro passa-alto molto permissivo
+      const bassHighpass = audioCtxRef.current.createBiquadFilter();
+      bassHighpass.type = "highpass";
+      bassHighpass.frequency.value = 20; // Molto basso per non tagliare nulla
+      bassHighpass.Q.value = 0.3; // Q molto basso
 
-      splitter.connect(analyserLeft, 0);
-      splitter.connect(analyserRight, 1);
+      // Boost dolce sui bassi
+      const bassBoost = audioCtxRef.current.createBiquadFilter();
+      bassBoost.type = "peaking";
+      bassBoost.frequency.value = 100;
+      bassBoost.Q.value = 0.8; // Q più basso per boost più ampio
+      bassBoost.gain.value = 2; // Boost più moderato
 
-      sourceRef.current.connect(splitter);
+      const bassGain = audioCtxRef.current.createGain();
+      bassGain.gain.value = 2.0; // Gain più basso per evitare saturazione
 
-      // VOCAL CHANNEL: Filtro ottimizzato per range vocali
-      const vocalAnalyser = audioCtxRef.current.createAnalyser();
-      vocalAnalyser.fftSize = 2048;
+      // FREQUENZE MEDIE (200Hz - 6kHz) - Molto permissive per catturare le voci
+      const midAnalyser = audioCtxRef.current.createAnalyser();
+      midAnalyser.fftSize = 2048;
 
-      // Filtro passa-alto per rimuovere basso e sub-bass
-      const highpass = audioCtxRef.current.createBiquadFilter();
-      highpass.type = "highpass";
-      highpass.frequency.value = 250; // Taglia più in alto
-      highpass.Q.value = 0.8; // Q più alto = taglio più netto
+      const midLowpass = audioCtxRef.current.createBiquadFilter();
+      midLowpass.type = "lowpass";
+      midLowpass.frequency.value = 6000; // Molto più alto
+      midLowpass.Q.value = 0.5; // Q molto basso
 
-      // Filtro passa-basso per rimuovere cymbals e hi-hat
-      const lowpass = audioCtxRef.current.createBiquadFilter();
-      lowpass.type = "lowpass";
-      lowpass.frequency.value = 3000; // Finestra più stretta
-      lowpass.Q.value = 0.8;
+      const midHighpass = audioCtxRef.current.createBiquadFilter();
+      midHighpass.type = "highpass";
+      midHighpass.frequency.value = 200; // Più basso per overlap con bassi
+      midHighpass.Q.value = 0.5; // Q molto basso
 
-      // Leggero boost sulle frequenze vocali principali
-      const midBoost = audioCtxRef.current.createBiquadFilter();
-      midBoost.type = "peaking";
-      midBoost.frequency.value = 800; // Centrato sulle formanti principali
-      midBoost.Q.value = 1.5; // Q più alto = boost più focalizzato
-      midBoost.gain.value = 4;
+      // Boost dolce sulle frequenze vocali
+      const midBoost1 = audioCtxRef.current.createBiquadFilter();
+      midBoost1.type = "peaking";
+      midBoost1.frequency.value = 1000;
+      midBoost1.Q.value = 0.7; // Q più basso per boost più ampio
+      midBoost1.gain.value = 1.5; // Boost più dolce
 
-      // Gain finale
-      const vocalGain = audioCtxRef.current.createGain();
-      vocalGain.gain.value = 3.0; // Un po' meno amplificazione
+      const midGain = audioCtxRef.current.createGain();
+      midGain.gain.value = 1.8; // Gain più basso
 
-      // Catena di filtri
-      sourceRef.current.connect(highpass);
-      highpass.connect(lowpass);
-      lowpass.connect(midBoost);
-      midBoost.connect(vocalGain);
-      vocalGain.connect(vocalAnalyser);
+      // FREQUENZE ACUTE (4kHz+) - Permissive per preservare dettagli
+      const trebleAnalyser = audioCtxRef.current.createAnalyser();
+      trebleAnalyser.fftSize = 2048;
 
-      audioAnalysersRef.current = [analyserLeft, analyserRight, vocalAnalyser];
+      // Filtro passa-alto permissivo
+      const trebleHighpass1 = audioCtxRef.current.createBiquadFilter();
+      trebleHighpass1.type = "highpass";
+      trebleHighpass1.frequency.value = 4000;
+      trebleHighpass1.Q.value = 0.5; // Q molto basso
 
-      const lowPassFilter = audioCtxRef.current.createBiquadFilter();
-      lowPassFilter.type = "lowpass";
-      lowPassFilter.frequency.value = 20000;
+      // Boost dolce per gli acuti
+      const trebleBoost = audioCtxRef.current.createBiquadFilter();
+      trebleBoost.type = "peaking";
+      trebleBoost.frequency.value = 8000;
+      trebleBoost.Q.value = 0.8;
+      trebleBoost.gain.value = 2; // Boost più moderato
+
+      const trebleGain = audioCtxRef.current.createGain();
+      trebleGain.gain.value = 3.0; // Gain ridotto
+
+      // Bassi: semplificata per ridurre perdite di segnale
+      sourceRef.current.connect(bassHighpass);
+      bassHighpass.connect(bassLowpass1);
+      bassLowpass1.connect(bassBoost);
+      bassBoost.connect(bassGain);
+      bassGain.connect(bassAnalyser);
+
+      // Medi: catena minima
+      sourceRef.current.connect(midHighpass);
+      midHighpass.connect(midLowpass);
+      midLowpass.connect(midBoost1);
+      midBoost1.connect(midGain);
+      midGain.connect(midAnalyser);
+
+      // Acuti: catena semplificata
+      sourceRef.current.connect(trebleHighpass1);
+      trebleHighpass1.connect(trebleBoost);
+      trebleBoost.connect(trebleGain);
+      trebleGain.connect(trebleAnalyser);
+
+      audioAnalysersRef.current = [bassAnalyser, midAnalyser, trebleAnalyser];
 
       sourceRef.current.connect(audioCtxRef.current.destination);
     }
@@ -104,16 +143,6 @@ function Waveform({ audioSource }) {
 
     const amplify = (value, factor = 2.0) =>
       Math.sign(value) * Math.pow(Math.abs(value), factor);
-
-    const easeInOutCubic = (t) => {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-    };
-
-    const smoothInterpolate = (current, target, factor, deltaTime) => {
-      // Usa un fattore dinamico basato sul tempo per consistenza
-      const adaptiveFactor = Math.min(factor * (deltaTime / 16.67), 1); // 16.67ms = 60fps
-      return current + (target - current) * adaptiveFactor;
-    };
 
     const draw = () => {
       animationFrameRef.current = requestAnimationFrame(draw);
@@ -178,9 +207,9 @@ function Waveform({ audioSource }) {
         prevDataArrayRef.current[analyserIndex].set(lerpedDataArray);
 
         const rgbColor = () => {
-          if (analyserIndex === 0) return "236, 154, 57";
-          else if (analyserIndex === 1) return "90, 197, 219";
-          else return "208, 63, 113";
+          if (analyserIndex === 0) return "208, 63, 113";
+          else if (analyserIndex === 1) return "236, 154, 57";
+          else return "90, 197, 219";
         };
 
         const color = rgbColor();
@@ -214,11 +243,12 @@ function Waveform({ audioSource }) {
       rgbColor
     ) => {
       const baseLine = waveformRef.current.height - 3; // wave baseline
-      const amplitudeM = analyserIndex === 2 ? 3 : 1;
-      const amplitude = waveformRef.current.height * 1.2 * amplitudeM; // wave height
+      const amplitudeM =
+        analyserIndex === 0 ? 1.8 : analyserIndex === 1 ? 3.5 : 1.2;
+      const amplitude = waveformRef.current.height * 0.9 * amplitudeM; // wave height
 
-      const step = 32;
-      const smoothing = 128;
+      const step = 24;
+      const smoothing = 192;
       const sliceWidth = waveformRef.current.width / (bufferSize - smoothing);
 
       let x = 0;
@@ -276,7 +306,8 @@ function Waveform({ audioSource }) {
           : lerpedDataArray.reduce((sum, val) => sum + Math.abs(val - 128), 0) /
             lerpedDataArray.length;
 
-      const volumeDivisor = analyserIndex === 2 ? 3 : 15;
+      const volumeDivisor =
+        analyserIndex === 0 ? 4 : analyserIndex === 1 ? 6 : 12;
 
       const alphaBlur = Math.min(1, volume / volumeDivisor);
 
@@ -285,13 +316,9 @@ function Waveform({ audioSource }) {
         Math.random() < 0.03
       ) {
         const channelName =
-          analyserIndex === 0
-            ? "LEFT"
-            : analyserIndex === 1
-            ? "RIGHT"
-            : "VOCAL";
+          analyserIndex === 0 ? "BASS" : analyserIndex === 1 ? "MID" : "TREBLE";
 
-        console.log(`=== ${channelName} CHANNEL ===`);
+        console.log(`=== ${channelName} FREQUENCIES ===`);
         console.log(`Min: ${min}, Max: ${max}, Avg: ${avg.toFixed(1)}`);
         console.log(`Range: ${range}, Volume: ${volume.toFixed(2)}`);
 

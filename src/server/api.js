@@ -10,7 +10,24 @@ router.get("/data", async (req, res) => {
     const filePath = path.join(__dirname, "data", "accepted_songs.json");
 
     const jsonData = await fs.readFile(filePath, "utf8");
-    
+
+    const data = JSON.parse(jsonData);
+
+    res.status(200).json(data);
+  } catch (err) {
+    console.error("Unexpected error while fetching data:", err);
+    res
+      .status(500)
+      .json({ error: "Unexpected error occurred while fetching data." });
+  }
+});
+
+router.get("/data/tsw", async (req, res) => {
+  try {
+    const filePath = path.join(__dirname, "data", "track_save_week.json");
+
+    const jsonData = await fs.readFile(filePath, "utf8");
+
     const data = JSON.parse(jsonData);
 
     res.status(200).json(data);

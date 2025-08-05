@@ -2,7 +2,7 @@ import "./App.css";
 import Wrapper from "./components/Wrapper";
 import Player from "./components/Player";
 
-function App() {
+function App({ format }) {
   return (
     <Wrapper>
       <span
@@ -31,7 +31,7 @@ function App() {
           <path d="M11 12h1v4h1" />
         </svg>
       </span>
-      <Player />
+      <Player format={format} />
       <span className="credits">Made with ❤️ by Dazorn</span>
     </Wrapper>
   );
