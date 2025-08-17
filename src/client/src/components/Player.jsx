@@ -28,6 +28,9 @@ function Player({ format }) {
         if (format === "TSW") {
           url += "/tsw";
         }
+        else if (format === "CHA") {
+          url += "/cha";
+        }
 
         const response = await fetch(url);
 
